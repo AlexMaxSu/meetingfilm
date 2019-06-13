@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.rest.common.persistence.dao.MtimeHallDictTMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.stylefeng.guns.rest.common.persistence.model.MtimeHallDictT">
+        <id column="UUID" property="uuid" />
+        <result column="show_name" property="showName" />
+        <result column="seat_address" property="seatAddress" />
+    </resultMap>
+
+
+    <resultMap id="HallTypeBoMap" type="com.stylefeng.guns.rest.model.cinema.bo.HallTypeBO">
+        <id column="UUID" property="halltypeId" />
+        <result column="show_name" property="halltypeName" />
+        <result column="is_active" property="isActive" />
+    </resultMap>
+
+    <select id="getHallTypeList" resultMap="HallTypeBoMap">
+        SELECT DISTINCT h.`UUID`, h.`show_name`, c.`UUID` is_active
+        FROM mtime_hall_dict_t h
+        LEFT JOIN mtime_cinema_t c ON c.hall_ids LIKE CONCAT("%#", h.`UUID`, "#%")
+        <where>
+            <if test="hallType != 99">
+                AND c.hall_ids LIKE CONCAT("%#", #{hallType}, "#%")
+            </if>
+        </where>
+        GROUP BY h.`UUID`
+    </select>
+
+
+    <resultMap id="HallInfoBoMap" type="com.stylefeng.guns.rest.model.cinema.bo.HallInfoBO">
+        <id column="UUID" property="hallFieldId" />
+        <result column="hall_name" property="hallName" />
+        <result column="seat_address" property="seatFile" />
+        <result column="price" property="price"/>
+    </resultMap>
+
+    <select id="getHallInfo" resultMap="HallInfoBoMap">
+        SELECT f.`UUID`, f.hall_name, f.price, hd.seat_address
+        FROM mtime_field_t f LEFT JOIN mtime_hall_dict_t hd ON hd.`UUID` = f.`hall_id`
+        <where>
+            <if test="fieldId != 99">
+                f.`UUID` = #{fieldId}
+            </if>
+        </where>
+    </select>
+</mapper>
